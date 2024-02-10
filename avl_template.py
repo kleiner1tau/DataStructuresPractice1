@@ -646,17 +646,17 @@ class AVLTree(object):
 		# Find a node from a max_tree that will be connected to the connection node
 		curr = max_tree.get_root()
 		while curr.is_real_node():
-			if curr.get_height() != min_tree_height:
+			if curr.get_height() > min_tree_height:
 				if min_is_from_left:
-					if curr.get_left().is_real_node() and curr.get_left().get_height() >= min_tree_height:
+					if curr.get_left().is_real_node():
 						curr = curr.get_left()
 					else:
-						curr = curr.get_right()
+						break
 				else:
-					if curr.get_right().is_real_node() and curr.get_right().get_height() >= min_tree_height:
+					if curr.get_right().is_real_node():
 						curr = curr.get_right()
 					else:
-						curr = curr.get_left()
+						break
 			else:
 				break
 		
@@ -672,6 +672,9 @@ class AVLTree(object):
 
 			if curr_parent is not None:
 				curr_parent.set_left(connection_node)
+			else:
+				max_tree._set_root(connection_node)
+				max_tree._recalc_height(connection_node)
 			connection_node.set_parent(curr_parent)
 		else:
 			connection_node.set_right(min_tree.get_root())
@@ -681,18 +684,14 @@ class AVLTree(object):
 
 			if curr_parent is not None:
 				curr_parent.set_right(connection_node)
+			else:
+				max_tree._set_root(connection_node)
+				max_tree._recalc_height(connection_node)
 			connection_node.set_parent(curr_parent)
 
 		# If the connection node ended up being the highest then there it is, no need to rebalance
-		if height_difference == 0:
-			self.root = connection_node
-		# If not - rebalance from connection node to root
-		else:
-			self.root = max_tree.get_root()
-			self._rebalance_from_node_to_root(connection_node, False)
-
-		
-
+		self.root = max_tree.get_root()
+		self._rebalance_from_node_to_root(connection_node, False)
 		return height_difference + 1
 
 
